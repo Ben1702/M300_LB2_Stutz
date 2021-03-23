@@ -70,6 +70,17 @@ Vagrant.configure("2") do |config|
    config.vm.provision "shell", inline: <<-SHELL
      apt-get update
      apt-get install -y samba
+
+     sudo cp /etc/samba/smb.conf /etc/samba/smb.conf-backup
+     sudo rm /etc/samba/smb.conf
+
+     
+
+
+
+
    SHELL
+
+  # config.vm.synced_folder ".","/Sambashare", type: "smb"
 
 end
