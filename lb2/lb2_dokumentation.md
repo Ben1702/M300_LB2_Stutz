@@ -65,16 +65,44 @@ config.vm.provision "shell", inline: <<-SHELL
      SHELL
 ```
 <br>
-Alle folgenden Code-Snippets werden ebenfalls in die Provision eingefügt, ausser es wird anders signalisiert.
+Alle folgenden Code-Snippets werden ebenfalls in die Provision eingefügt, sofern nicht anders angegeben.
 <br>
 Hiermit befehle ich der VM, dass sie das Original des Samba-Konfigurationsfiles kopieren und danach löschen soll. Dies mache ich, um meine eigene Samba-Konfiguration einspeisen zu können.
+
 ```bash
 sudo cp /etc/samba/smb.conf /etc/samba/smb.conf-backup
 sudo rm /etc/samba/smb.conf
 ```
+
 <br>
-Nun gebe ich dem Vagrantfile an, dass er eine an sich externe Samba-Konfiguration holen soll. Diese ist im Repository hinterlegt.
+Nun gebe ich der VM an, dass er meine eigene, aus ihrer Sicht externe Samba-Konfiguration holen soll. Diese ist im Repository hinterlegt.
 
 ```bash
-placeholder
+sudo wget -P /etc/samba https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb2/smb.conf
 ```
+
+<br>
+Im Samba-Konfigfile habe ich folgendes eingestellt:
+
+```
+[fileserver]
+	path = /home/zamboni
+	browseable = yes
+	writeable = yes
+	read only = no
+	create mode = 0600
+	directory mode = 0700
+	valid users = @zamboni
+```
+Dies setzt einen Sambashare auf den Homeordner des Users "Zamboni". Zamboni ist auch der einzige, der auf diesen Share zugreifen darf.
+<br>
+
+### User einbauen
+Wieder zurück in der Provision des Vagrantfiles erstelle ich folgende Variablen:
+
+```
+LOGIN=zamboni
+PASS=Welcome$21
+```
+
+

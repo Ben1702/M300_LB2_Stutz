@@ -68,14 +68,20 @@ Vagrant.configure("2") do |config|
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
    config.vm.provision "shell", inline: <<-SHELL
+     # Samba installieren
      apt-get update
      apt-get install -y samba
 
+     # Originale Samba-Config backupen und löschen
      sudo cp /etc/samba/smb.conf /etc/samba/smb.conf-backup
      sudo rm /etc/samba/smb.conf
 
-     
-
+     # eigene Sambaconfig holen
+     sudo wget -P /etc/samba https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb2/smb.conf
+    
+     # Uservariablen
+     LOGIN=zamboni
+     PASS=Welcome$21
 
 
 
