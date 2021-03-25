@@ -1,10 +1,17 @@
-# M300 LB2 
+# M300 LB2 - Dokumentation
 ## Inhaltsverzeichnis
+  - [Einleitung](#Einleitung)
   - [Umsetzung](#umsetzung)
     - [Vagrant-VM initieren](#vagrant-vm-initieren)
     - [Samba-Funktion einbauen](#samba-funktion-einbauen)
+    - [Samba Configuration File](#samba-configuration-file)
+    - [User einbauen](#user-einbauen)
+  - [Testing](#testing)
 
+## Einleitung
+Ich habe mir als Vagrant-Auftrag für LB2 einen automatisch aufgesetzten Samba-Share ausgesucht. Dies hauptsächlich aus dem Grund, dass ich diese Funktion vielleicht tatsächlich mal privat oder geschäftlich brauchen könnte.
 
+---
 ## Umsetzung
 ### Vagrant-VM initieren
 Ein Vagrant-Ordner erstellen und dort die Vagrantfile-Vorlage erstellen.
@@ -104,7 +111,7 @@ Wieder zurück in der Provision des Vagrantfiles erstelle ich folgende Variablen
 
 ```
 LOGIN=zamboni
-PASSWD=Welcome$21
+PASSWD=Welcome21
 ```
 
 Dies erlaubt es mir, den für den Sambashare benötigten lokalen User einfacher zu erstellen.
@@ -139,3 +146,27 @@ Als allerletztes lasse ich nun den Samba-Dienst neustarten, um die Einstellungen
 sudo /etc/init.d/samba restart
 ```
 ---
+## Testing
+
+Um den Fileserver zu testen, muss natürlich zuerst einmal vagrant up gemacht werden. Gemäss dem Output und vagrant status scheint alles in Ordnung zu sein:
+![Vagrant Stats](Dokumentation-data/vagrant_status.png)
+<br>
+
+Nun gebe ich die Adresse meines Servers in den File Explorer meines Hostgerätes ein: 
+**\\\192.168.0.45**
+
+Beim nachgefragten Login gebe ich natürlich meinen erstellten User an:
+![User anmelden](Dokumentation-data/user_anmelden.png)
+<br>
+
+Und schon bin ich im Share!
+![Fileserver](Dokumentation-data/fileserver.png)
+ Als zusätzlicher Beweis habe ich gleich ein Testfile dort hinterlassen.
+<br>
+
+Zusätzlich habe ich mit meinem Smartphone (und der Hilfe eines Netzwerkfähigen Dateimanagers) auch noch den Share geöffnet und das File ausgelesen:
+<img src="Dokumentation-data/Handy-zugriff1.jpeg" width="360" height="764" />
+
+<br>
+
+<img src="Dokumentation-data/Handy-zugriff2.jpeg" width="360" height="764" />

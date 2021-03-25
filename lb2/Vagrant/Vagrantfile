@@ -81,7 +81,7 @@ Vagrant.configure("2") do |config|
     
      # Uservariablen
      LOGIN=zamboni
-     PASSWD=Welcome$
+     PASSWD=Welcome21
      
      #User erstellen
      echo -ne "$PASSWD\n$PASSWD\n" | sudo adduser $LOGIN
