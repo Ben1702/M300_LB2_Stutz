@@ -82,7 +82,9 @@ sudo wget -P /etc/samba https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/
 ```
 
 <br>
-Im Samba-Konfigfile habe ich folgendes eingestellt:
+
+### Samba Configuration File
+Im Samba-Konfigfile, dem eigentlichen Herzstück dieser Aufgabe, habe ich folgendes eingestellt:
 
 ```
 [fileserver]
@@ -95,14 +97,45 @@ Im Samba-Konfigfile habe ich folgendes eingestellt:
 	valid users = @zamboni
 ```
 Dies setzt einen Sambashare auf den Homeordner des Users "Zamboni". Zamboni ist auch der einzige, der auf diesen Share zugreifen darf.
-<br>
 
+---
 ### User einbauen
 Wieder zurück in der Provision des Vagrantfiles erstelle ich folgende Variablen:
 
 ```
 LOGIN=zamboni
-PASS=Welcome$21
+PASSWD=Welcome$21
 ```
 
+Dies erlaubt es mir, den für den Sambashare benötigten lokalen User einfacher zu erstellen.
+<br>
 
+Da bei der Usererstellung immer zwei mal nach dem Passwort gefragt wird, muss ich die VM ein wenig austricksen. Ich sende per Pipe einen Echo-Command mit dem doppelt angegebenen Passwort an den den "normalen" User-Erstell-Command.
+
+```bash
+echo -ne "$PASSWD\n$PASSWD\n" | sudo adduser $LOGIN
+sudo addgroup $LOGIN $LOGIN
+```
+<br>
+ Den exakt gleichen Trick benutze ich nun, um den eigentlichen Sambauser zu erstellen.
+ 
+ ```bash
+ echo -ne "$PASSWD\n$PASSWD\n" | sudo smbpasswd -a -s $LOGIN
+ ``` 
+<br>
+
+Als Schlusssprint setze ich nun noch spezifische Rechte für den Share-Ordner auf. 
+
+```bash
+sudo chown $LOGIN:$LOGIN /home/$LOGIN
+sudo chmod 2770 /home/$LOGIN
+```
+Dies bedeutet, dass der Share-Ordner nun nur Zamboni und seiner Gruppe gehört, nur Zamboni und seine Gruppe volle Rechte haben und alle anderen gar keine Rechte.
+<br>
+
+Als allerletztes lasse ich nun den Samba-Dienst neustarten, um die Einstellungen übernehmen zu können.
+
+```bash
+sudo /etc/init.d/samba restart
+```
+---

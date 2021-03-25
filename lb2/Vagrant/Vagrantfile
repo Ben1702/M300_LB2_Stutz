@@ -81,10 +81,22 @@ Vagrant.configure("2") do |config|
     
      # Uservariablen
      LOGIN=zamboni
-     PASS=Welcome$21
+     PASSWD=Welcome$
+     
+     #User erstellen
+     echo -ne "$PASSWD\n$PASSWD\n" | sudo adduser $LOGIN
+     sudo addgroup $LOGIN $LOGIN
 
+     #Samba-user erstellen
+     echo -ne "$PASSWD\n$PASSWD\n" | sudo smbpasswd -a -s $LOGIN
 
+     #Share-Rechte
+     sudo chown $LOGIN:$LOGIN /home/$LOGIN
+     sudo chmod 2770 /home/$LOGIN
 
+     #Sambadienst neustarten
+     sudo /etc/init.d/samba restart
+     
    SHELL
 
   # config.vm.synced_folder ".","/Sambashare", type: "smb"
