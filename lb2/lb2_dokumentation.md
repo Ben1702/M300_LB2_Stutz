@@ -165,6 +165,7 @@ Und schon bin ich im Share!
 <br>
 
 Zusätzlich habe ich mit meinem Smartphone (und der Hilfe eines Netzwerkfähigen Dateimanagers) auch noch den Share geöffnet und das File ausgelesen:
+
 <img src="Dokumentation-data/Handy-zugriff1.jpeg" width="360" height="764" />
 
 <br>
