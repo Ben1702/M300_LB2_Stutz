@@ -30,10 +30,26 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |vb|
      vb.memory = "2048"
+	 
+  
   end
-
+  
+  # Shell Provision
+  config.vm.provision "shell", inline: <<-SHELL 
+  
+   apt-get update
+   apt-get install -y docker-compose
+   
+   mkdir compose-projekt
+   mkir compose-projekt/src
+   sudo wget -P ./compose-projekt/src https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/docker-compose.yml
+  
+  SHELL
+  
   # Docker Provisioner
   config.vm.provision "docker" do |d|
    d.pull_images "ubuntu:14.04"
+  
   end
+  
 end

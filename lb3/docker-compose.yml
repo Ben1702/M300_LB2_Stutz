@@ -1,14 +1,13 @@
-version: "3.9"
+version: "3.1"
 services:
-    www:
-        build: .
+    php:
+        image: php
         ports: 
-            - "8001:80"
+            - "80:80"
         volumes:
-            - ./www:/var/www/html/
-        links:
-            - db
-        networks:
-            - default
-volumes:
+            - ./src:/var/www/html/
+
+
+
+
     
