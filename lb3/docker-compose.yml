@@ -1,12 +1,12 @@
-version: "2"    
+version: "3.7"    
 services:    
   mysql:
     container_name: "mysql"
     image: mysql:latest
     environment:
-      - MYSQL_ROOT_PASSWORD: Welcome20
-      - MYSQL_USER: admin
-      - MYSQL_PASSWORD: Welcome20
+      - MYSQL_ROOT_PASSWORD=Welcome20
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=Welcome20
     ports:
       - '3306:3306'
     volumes:
@@ -14,7 +14,7 @@ services:
     
   php:
     container_name: "php"
-    image: bitnami/php-fpm:7.4
+    image: bitnami/php-fpm:latest
     depends_on:
       - redis
     volumes:
@@ -23,10 +23,10 @@ services:
   
   apache:
     container_name: "apache"
-    image: apache:2.4
+    image: httpd:latest
     ports:
-      - '80:8080'
-      - '443:8443'
+      - '81:81'
+      - '8443:8443'
     depends_on:
       - php
     volumes:
@@ -48,11 +48,7 @@ services:
     depends_on:
       - mysql
     ports:
-      - '81:8080'
-      - '8143:8443'
+      - '80:80'
+      - '443:443'
     environment:
       - DATABASE_HOST=host.docker.internal
-    
-  volumes:
-    mysql:
-      driver: local

@@ -1,22 +1,35 @@
 # LB03
 ## Inhaltsverzeichnis
 
-[Einleitung](#Einleitung)
+- [Einleitung](#Einleitung)
   - [Benötigte Vagrant-System-Änderungen](#benötigte-vagrant-system-änderungen)
 
-[Realisierung](#Realisierung)
-  - [Vorbereitung](#vorbereitung)
-  - [docker-compose.yml](#docker-composeyml)
-    - [MySQL](#mysql)
-    - [PHP](#php)
-    - [Apache](#apache)
-    - [Redis](#redis)
-    - [PHPmyAdmin](#phpmyadmin)
-    - [Volumes](#volumes)
-  - [Apache-Konfiguration](#apache-konfiguration)
+- [LB03](#lb03)
+  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
+  - [Einleitung](#einleitung)
+    - [Benötigte Vagrant-System-Änderungen](#benötigte-vagrant-system-änderungen)
+  - [Realisierung](#realisierung)
+    - [Vorbereitung](#vorbereitung)
+      - [Wichtig!](#wichtig)
+    - [docker-compose.yml](#docker-composeyml)
+      - [MySQL](#mysql)
+      - [PHP](#php)
+      - [Apache](#apache)
+      - [Redis](#redis)
+      - [phpMyAdmin](#phpmyadmin)
+    - [Apache-Konfiguration](#apache-konfiguration)
+    - [MySQL-Konfiguration](#mysql-konfiguration)
+    - [PHP-Konfiguration](#php-konfiguration)
+    - [Docker-Compose starten](#docker-compose-starten)
+    - [phpMyAdmin-Konfiguration](#phpmyadmin-konfiguration)
+  - [Testen](#testen)
+    - [Problem](#problem)
+  - [Quellenangaben](#quellenangaben)
 
-[Testen](#testing)
+- [Testen](#testing)
+  - [Problem](#problem)
 
+- [Quellenangaben](#quellenangaben)
 ## Einleitung
 Für diese LB möchte ich eine Docker-Compose erstellen, welche eine MySQL-Datenbank per MyPHP ins LAN verfügbar stellt. Als Grundlage für Docker nehme ich eine Kopie der VM, welche Herr Berger in seinem M300 Github zur Verfügung stellte.
 
@@ -30,7 +43,8 @@ Ebenso füge ich diese Provision ins Vagrantfile ein, um meine Ordnerstruktur un
   config.vm.provision "shell", inline: <<-SHELL 
   
    apt-get update
-   apt-get install -y docker-compose
+   apt-get install -y python-pip
+   pip install docker-compose
 
    mkdir compose-projekt
    mkdir compose-projekt/docker
@@ -64,8 +78,17 @@ compose-projekt/docker/docker-compose.yml
 ```
 <br>
 
+#### Wichtig!
+Um das Docker-Compose.yml auf der Version 3.7  auf der VM von Herrn Berger laufen lassen zu können, muss Docker-Compose Version 1.29.1 / die neueste Version installiert sein. Da der normale *apt-get*-Installer nur eine veraltete Verion installiert, mache ich folgendes:
+
+```shell
+sudo apt-get install python-pip
+sudo pip install docker-compose
+```
+Ich installiere zuerst den alternativ-Installer pip und installiere danach damit Docker-Compose.
+
 ### docker-compose.yml
-Alle folgenden Abschnitte werden in das Docker-Compose-File eingetragen. Das File operiert auf Version 3.
+Alle folgenden Abschnitte werden in das Docker-Compose-File eingetragen. Das File operiert auf Version 3.7.
 
 #### MySQL
 Für den MYSQL-Container erstelle ich folgenden EIntrag unter services:
@@ -74,9 +97,9 @@ Für den MYSQL-Container erstelle ich folgenden EIntrag unter services:
     container_name: "mysql"
     image: mysql:latest
     environment:
-      - MYSQL_ROOT_PASSWORD: Welcome20
-      - MYSQL_USER: admin
-      - MYSQL_PASSWORD: Welcome20
+      - MYSQL_ROOT_PASSWORD=Welcome20
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=Welcome20
     ports:
       - '3306:3306'
     volumes:
@@ -89,7 +112,7 @@ Für PHP selbst besteht dieser Eintrag:
 ```docker
   php:  
     container_name: "php"
-    image: bitnami/php-fpm:7.4
+    image: bitnami/php-fpm:latest
     depends_on:
       - redis
     volumes:
@@ -103,10 +126,10 @@ Ebenso hat es eine Dependenz an Redis, einem Datenstruktur-Dienst.
 ```docker
 apache:
     container_name: "apache"
-    image: apache:2.4
+    image: httpd:latest
     ports:
-      - '80:8080'
-      - '443:8443'
+      - '81:81'
+      - '8443:8443'
     depends_on:
       - php
     volumes:
@@ -127,7 +150,7 @@ redis:
 ```
 Redis ist wie bereits in PHP gesagt ein Datenstruktur-Dienst für Server. Dieser wird äusserst Standardmässig aufgebaut, nur mit einem Passwort versehen.
 
-#### PHPmyAdmin
+#### phpMyAdmin
 ```docker
 phpmyadmin:
     container_name: "phpmyadmin"
@@ -135,20 +158,13 @@ phpmyadmin:
     depends_on:
       - mysql
     ports:
-      - '81:8080'
-      - '8143:8443'
+      - '80:80'
+      - '443:443'
     environment:
       - DATABASE_HOST=host.docker.internal
 ```
-Auch PHPmyAdmin wird ziemlich dem Standard getreu aufgebaut, nur mit einer Dependenz auf MySQL und leicht veränderten Ports.
+Auch phpMyAdmin wird ziemlich dem Standard getreu aufgebaut, nur mit einer Dependenz auf MySQL und leicht veränderten Ports.
 
-#### Volumes
-Als letztes im Compose-File kommen noch Volumes dran.
-```docker
-volumes:
-    mysql:
-      driver: local
-```
 Das Docker-Compose-File kann nun geschlossen und gespeichert werden.
 ### Apache-Konfiguration
 Als nächstes muss Apache konfiguriert werden. Dafür wird als erstes ein SSL-Zertifikat benötigt, welches durch diesen Command erstellt werden kann:
@@ -233,7 +249,32 @@ xdebug.remote_log="/tmp/xdebug.log"
 Diese Konfig bestimmt Limitationen des Servers und Standorten von benötigten Dateien.<br>
 Auch diese Konfig ist im Repository zu finden.
 
-### PHPmyAdmin-Konfiguration
-PHPmyAdmin benötigt ebenfalls keine zusätzliche Konfiguration und sollte nach Aufstarten der Container auf *[IP-Adresse]:81* / *[IP-Adresse]:8143* erreichbar sein.
+### Docker-Compose starten
+Um die Komposition zu starten, muss folgender Command eingegeben werden:
+```shell
+docker-compose up -d
+```
+Stimmt für das Compose-Programm alles im File, sollte folgender Output kommen:
+![Docker-Compose-ouptut](Dokumentation-data/docker-compose1.png)
+
+
+### phpMyAdmin-Konfiguration
+phpMmyAdmin benötigt ebenfalls keine zusätzliche Konfiguration und sollte nach Aufstarten der Container auf *[IP-Adresse]:80* / *[IP-Adresse]:443* erreichbar sein.
 
 ## Testen
+Um auf phpMyAdmin zu kommen, muss ich nur die IP-Adresse der VM in einen Browser eingeben:
+
+![phpMyAdmin-Login](Dokumentation-data/phpMyAdmin1.png)
+Das Compose-File funktioniert also schon mal wie gewollt.
+### Problem
+Nun bin ich auf ein Problem gestossen:
+Wenn ich versuche, mich in PHPMyAdmin anzumelden, kommen folgende Fehlermeldungen:
+
+![phpMyAdmin-Fehler](Dokumentation-data/phpmyadmin-fehler.jpeg)
+
+Ich habe ein paar Falle im Internet gefunden, aber keiner, welcher mir helfen konnte. Leider ist mir die Projektzeit ausgegangen, bevor ich dies lösen konnte.
+
+## Quellenangaben
+Die Scripts und die generelle Vorgehensweise wurde grösstenteils von dieser Seite inspiriert:
+
+[https://marketmix.com/de/docker-apache-mysql-php-und-phpmyadmin-im-container-verbund/](https://marketmix.com/de/docker-apache-mysql-php-und-phpmyadmin-im-container-verbund/)
