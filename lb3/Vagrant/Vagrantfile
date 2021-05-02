@@ -49,6 +49,9 @@ Vagrant.configure("2") do |config|
    mkdir compose-projekt/docker/php
    mkdir compose-projekt/docker/www
    sudo wget -P ./compose-projekt/docker https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/docker-compose.yml
+   sudo wget -P ./compose-projekt/docker/apache https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/my_vhost.conf
+   sudo wget -P ./compose-projekt/docker/www https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/info.php
+   sudo wget -P ./compose-projekt/docker/php https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/php.ini
   
   SHELL
   

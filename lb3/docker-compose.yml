@@ -1,12 +1,12 @@
-version: "3"    
+version: "2"    
 services:    
   mysql:
     container_name: "mysql"
     image: mysql:latest
     environment:
-      - MYSQL_ROOT_PASSWORD=Welcome$20
-      - MYSQL_USER=admin
-      - MYSQL_PASSWORD=Welcome$20
+      - MYSQL_ROOT_PASSWORD: Welcome20
+      - MYSQL_USER: admin
+      - MYSQL_PASSWORD: Welcome20
     ports:
       - '3306:3306'
     volumes:
@@ -38,7 +38,7 @@ services:
     container_name: "redis"
     image: redis:latest
     environment:
-      - REDIS_PASSWORD=Welcome$20
+      - REDIS_PASSWORD: Welcome20
     
   # --- PhpMyAdmin latest
   # Login with user root and mysql-password.

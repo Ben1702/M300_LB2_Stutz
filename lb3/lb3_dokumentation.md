@@ -24,7 +24,7 @@ Für diese LB möchte ich eine Docker-Compose erstellen, welche eine MySQL-Daten
 Um die Komposition besser testen zu können, nehme ich die VM in mein LAN auf, was bedeutet, dass es die IP-Adresse *192.168.0.45 /24* bekommt. Vor der Abgabe werde ich dies wieder auf die verlangte Adresse *192.168.60.101 /24* ändern.
 <br>
 
-Ebenso füge ich diese Provision ins Vagrantfile ein, um mein Dockerfile und Docker-Compose immer verfügbar zu haben:
+Ebenso füge ich diese Provision ins Vagrantfile ein, um meine Ordnerstruktur und Files immer verfügbar zu haben:
 ```shell
   # Shell Provision
   config.vm.provision "shell", inline: <<-SHELL 
@@ -41,7 +41,10 @@ Ebenso füge ich diese Provision ins Vagrantfile ein, um mein Dockerfile und Doc
    mkdir compose-projekt/docker/php
    mkdir compose-projekt/docker/www
    sudo wget -P ./compose-projekt/docker https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/docker-compose.yml
-   
+   sudo wget -P ./compose-projekt/docker/apache https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/my_vhost.conf
+   sudo wget -P ./compose-projekt/docker/www https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/info.php
+   sudo wget -P ./compose-projekt/docker/php https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/php.ini
+
   SHELL
 ```
 
@@ -71,15 +74,15 @@ Für den MYSQL-Container erstelle ich folgenden EIntrag unter services:
     container_name: "mysql"
     image: mysql:latest
     environment:
-      - MYSQL_ROOT_PASSWORD=Welcome$20
-      - MYSQL_USER=admin
-      - MYSQL_PASSWORD=Welcome$20
+      - MYSQL_ROOT_PASSWORD: Welcome20
+      - MYSQL_USER: admin
+      - MYSQL_PASSWORD: Welcome20
     ports:
       - '3306:3306'
     volumes:
       - ./docker/mysql/data:/mysql/data
 ```
-Dies erstellt ein MySQL-Container, welcher bereits mit den Admin-Anmeldedaten gefüttert wurde. Anmelden kann man sich mit dem User **Admin** und dem Passwort **Welcome$20**.
+Dies erstellt ein MySQL-Container, welcher bereits mit den Admin-Anmeldedaten gefüttert wurde. Anmelden kann man sich mit dem User **Admin** und dem Passwort **Welcome20**.
 
 #### PHP
 Für PHP selbst besteht dieser Eintrag:
@@ -120,7 +123,7 @@ redis:
     container_name: "redis"
     image: redis:latest
     environment:
-      - REDIS_PASSWORD=Welcome$20
+      - REDIS_PASSWORD: Welcome20
 ```
 Redis ist wie bereits in PHP gesagt ein Datenstruktur-Dienst für Server. Dieser wird äusserst Standardmässig aufgebaut, nur mit einem Passwort versehen.
 
