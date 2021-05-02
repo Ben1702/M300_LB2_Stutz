@@ -1,9 +1,6 @@
 # LB03
 ## Inhaltsverzeichnis
 
-- [Einleitung](#Einleitung)
-  - [Benötigte Vagrant-System-Änderungen](#benötigte-vagrant-system-änderungen)
-
 - [LB03](#lb03)
   - [Inhaltsverzeichnis](#inhaltsverzeichnis)
   - [Einleitung](#einleitung)
@@ -20,16 +17,12 @@
     - [Apache-Konfiguration](#apache-konfiguration)
     - [MySQL-Konfiguration](#mysql-konfiguration)
     - [PHP-Konfiguration](#php-konfiguration)
-    - [Docker-Compose starten](#docker-compose-starten)
     - [phpMyAdmin-Konfiguration](#phpmyadmin-konfiguration)
+    - [Docker-Compose starten](#docker-compose-starten)
   - [Testen](#testen)
     - [Problem](#problem)
   - [Quellenangaben](#quellenangaben)
 
-- [Testen](#testing)
-  - [Problem](#problem)
-
-- [Quellenangaben](#quellenangaben)
 ## Einleitung
 Für diese LB möchte ich eine Docker-Compose erstellen, welche eine MySQL-Datenbank per MyPHP ins LAN verfügbar stellt. Als Grundlage für Docker nehme ich eine Kopie der VM, welche Herr Berger in seinem M300 Github zur Verfügung stellte.
 
@@ -43,6 +36,7 @@ Ebenso füge ich diese Provision ins Vagrantfile ein, um meine Ordnerstruktur un
   config.vm.provision "shell", inline: <<-SHELL 
   
    apt-get update
+   apt-get install docker-compose
    apt-get install -y python-pip
    pip install docker-compose
 
@@ -79,19 +73,20 @@ compose-projekt/docker/docker-compose.yml
 <br>
 
 #### Wichtig!
-Um das Docker-Compose.yml auf der Version 3.7  auf der VM von Herrn Berger laufen lassen zu können, muss Docker-Compose Version 1.29.1 / die neueste Version installiert sein. Da der normale *apt-get*-Installer nur eine veraltete Verion installiert, mache ich folgendes:
+Um das Docker-Compose.yml auf der Version 3.7  auf der VM von Herrn Berger laufen lassen zu können, muss Docker-Compose Version 1.29.1 / die neueste Version installiert sein. Da der normale *apt-get*-Installer nur eine veraltete Verion installiert, mache ich nach der normalen *apt-get*-Installation folgendes:
 
 ```shell
 sudo apt-get install python-pip
+sudo pip --upgrade pip
 sudo pip install docker-compose
 ```
-Ich installiere zuerst den alternativ-Installer pip und installiere danach damit Docker-Compose.
+Ich installiere zuerst den alternativ-Installer pip, aktualisiere ihn und installiere (eigentlich aktualisiere) danach damit Docker-Compose.
 
 ### docker-compose.yml
 Alle folgenden Abschnitte werden in das Docker-Compose-File eingetragen. Das File operiert auf Version 3.7.
 
 #### MySQL
-Für den MYSQL-Container erstelle ich folgenden EIntrag unter services:
+Für den MYSQL-Container erstelle ich folgenden Eintrag unter services:
 ```docker
   mysql:
     container_name: "mysql"
@@ -137,7 +132,7 @@ apache:
       - ./docker/apache/my_vhost.conf:/vhosts/myapp.conf:ro
       - ./docker/apache/certs:/certs
 ```
-Apache wird recht standardmässig implementiert, einfach mit der Dependenz auf PHP und einem zusätzlichem Port. <br>
+Apache wird recht standardmässig implementiert, einfach mit der Dependenz auf PHP und leicht veränderten Ports. <br>
 "my_vhost.conf" wird als Konfigurationsfile für Apache dienen.
 
 #### Redis
@@ -163,7 +158,7 @@ phpmyadmin:
     environment:
       - DATABASE_HOST=host.docker.internal
 ```
-Auch phpMyAdmin wird ziemlich dem Standard getreu aufgebaut, nur mit einer Dependenz auf MySQL und leicht veränderten Ports.
+Auch phpMyAdmin wird ziemlich dem Standard getreu aufgebaut, nur mit einer Dependenz auf MySQL.
 
 Das Docker-Compose-File kann nun geschlossen und gespeichert werden.
 ### Apache-Konfiguration
@@ -249,6 +244,9 @@ xdebug.remote_log="/tmp/xdebug.log"
 Diese Konfig bestimmt Limitationen des Servers und Standorten von benötigten Dateien.<br>
 Auch diese Konfig ist im Repository zu finden.
 
+### phpMyAdmin-Konfiguration
+phpMmyAdmin benötigt ebenfalls keine zusätzliche Konfiguration und sollte nach Aufstarten der Container auf *[IP-Adresse]:80* / *[IP-Adresse]:443* erreichbar sein.
+
 ### Docker-Compose starten
 Um die Komposition zu starten, muss folgender Command eingegeben werden:
 ```shell
@@ -256,10 +254,6 @@ docker-compose up -d
 ```
 Stimmt für das Compose-Programm alles im File, sollte folgender Output kommen:
 ![Docker-Compose-ouptut](Dokumentation-data/docker-compose1.png)
-
-
-### phpMyAdmin-Konfiguration
-phpMmyAdmin benötigt ebenfalls keine zusätzliche Konfiguration und sollte nach Aufstarten der Container auf *[IP-Adresse]:80* / *[IP-Adresse]:443* erreichbar sein.
 
 ## Testen
 Um auf phpMyAdmin zu kommen, muss ich nur die IP-Adresse der VM in einen Browser eingeben:
@@ -272,7 +266,7 @@ Wenn ich versuche, mich in PHPMyAdmin anzumelden, kommen folgende Fehlermeldunge
 
 ![phpMyAdmin-Fehler](Dokumentation-data/phpmyadmin-fehler.jpeg)
 
-Ich habe ein paar Falle im Internet gefunden, aber keiner, welcher mir helfen konnte. Leider ist mir die Projektzeit ausgegangen, bevor ich dies lösen konnte.
+Ich habe ein paar Fälle im Internet gefunden, aber keiner, welcher mir helfen konnte. Leider ist mir die Projektzeit ausgegangen, bevor ich dies lösen konnte.
 
 ## Quellenangaben
 Die Scripts und die generelle Vorgehensweise wurde grösstenteils von dieser Seite inspiriert:
