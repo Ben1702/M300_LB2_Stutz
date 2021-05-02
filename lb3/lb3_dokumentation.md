@@ -38,6 +38,7 @@ Ebenso füge ich diese Provision ins Vagrantfile ein, um meine Ordnerstruktur un
    apt-get update
    apt-get install docker-compose
    apt-get install -y python-pip
+   pip --upgrade pip
    pip install docker-compose
 
    mkdir compose-projekt
