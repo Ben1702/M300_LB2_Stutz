@@ -7,6 +7,13 @@
 [Realisierung](#Realisierung)
   - [Vorbereitung](#vorbereitung)
   - [docker-compose.yml](#docker-composeyml)
+    - [MySQL](#mysql)
+    - [PHP](#php)
+    - [Apache](#apache)
+    - [Redis](#redis)
+    - [PHPmyAdmin](#phpmyadmin)
+    - [Volumes](#volumes)
+  - [Apache-Konfiguration](#apache-konfiguration)
 
 [Testen](#testing)
 
@@ -87,9 +94,9 @@ Für PHP selbst besteht dieser Eintrag:
       - ./docker/php/php.ini:/opt/php/etc/conf.d/php.ini:ro
 ```
 Hierfür benutze ich ein leicht angepasstes php-image, *php-fpm*, vom alternativen Image-Anbieter Bitnami. FPM bietet nützliche Features für alle möglichen PHP-Seiten.
-Ebenso hat es eine dependenz an Redis, einem Datenstruktur-Dienst.
+Ebenso hat es eine Dependenz an Redis, einem Datenstruktur-Dienst.
 
-#### apache
+#### Apache
 ```docker
 apache:
     container_name: "apache"
@@ -176,7 +183,7 @@ Nun an die eigentliche Konfig. Dafür wird unter *docker/apache* das File **my_v
   </Directory>
 </VirtualHost>
 ```
-Dies erstellt die Konfigurationen für beide Supporteten Ports.
+Dies erstellt die Konfigurationen für beide supporteten Ports.
 Diese Konfig-datei ist ebenfalls hier im Repository zu finden.
 
 Als letztes für Apache wird noch im Ordner *docker/www* die Datei **info.php** erstellt, welche folgenden Inhalt hat:
@@ -185,10 +192,45 @@ Als letztes für Apache wird noch im Ordner *docker/www* die Datei **info.php** 
 phpinfo();
 ?>
 ```
+Datei ebenfalls im Repository vorhanden.
+### MySQL-Konfiguration
+MySQL benötigt nur den bereits erstellten, leeren Ordner *docker/mysql/data*. Den Rest übernimmt das Compose-File.
+
+### PHP-Konfiguration
+Als PHP-Konfig wird im Ordner *docker/php* die Datei **php.ini** mit diesem Inhalt erstellt:
+```php
+display_errors = On
+expose_php = off
+
+max_execution_time = 360
+max_input_time = 360
+memory_limit = 256M
+upload_max_filesize = 1G
+post_max_size = 1G
+
+opcache.enable = 1
+opcache.revalidate_freq = 2
+opcache.validate_timestamps = 1
+opcache.interned_strings_buffer = 32
+opcache.memory_consumption = 256
+
+extension=imagick.so
+zend_extension = "/opt/bitnami/php/lib/php/extensions/xdebug.so"
+
+[Xdebug]
+xdebug.remote_autostart=1
+xdebug.remote_enable=1
+xdebug.default_enable=0
+xdebug.remote_host=host.docker.internal
+xdebug.remote_port=9000
+xdebug.remote_connect_back=0
+xdebug.profiler_enable=0
+xdebug.remote_log="/tmp/xdebug.log"
+```
+Diese Konfig bestimmt Limitationen des Servers und Standorten von benötigten Dateien.<br>
+Auch diese Konfig ist im Repository zu finden.
+
+### PHPmyAdmin-Konfiguration
+PHPmyAdmin benötigt ebenfalls keine zusätzliche Konfiguration und sollte nach Aufstarten der Container auf *[IP-Adresse]:81* / *[IP-Adresse]:8143* erreichbar sein.
 
 ## Testen
-
-<br>
-
-## Quellenangaben
-
