@@ -1,13 +1,58 @@
-version: "3.1"
-services:
-    php:
-        image: php
-        ports: 
-            - "80:80"
-        volumes:
-            - ./src:/var/www/html/
-
-
-
-
+version: "3"    
+services:    
+  mysql:
+    container_name: "mysql"
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=Welcome$20
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=Welcome$20
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./docker/mysql/data:/mysql/data
     
+  php:
+    container_name: "php"
+    image: bitnami/php-fpm:7.4
+    depends_on:
+      - redis
+    volumes:
+      - ./docker/www:/app:delegated
+      - ./docker/php/php.ini:/opt/php/etc/conf.d/php.ini:ro
+  
+  apache:
+    container_name: "apache"
+    image: apache:2.4
+    ports:
+      - '80:8080'
+      - '443:8443'
+    depends_on:
+      - php
+    volumes:
+      - ./docker/www:/app:delegated
+      - ./docker/apache/my_vhost.conf:/vhosts/myapp.conf:ro
+      - ./docker/apache/certs:/certs
+    
+  redis:
+    container_name: "redis"
+    image: redis:latest
+    environment:
+      - REDIS_PASSWORD=Welcome$20
+    
+  # --- PhpMyAdmin latest
+  # Login with user root and mysql-password.
+  phpmyadmin:
+    container_name: "phpmyadmin"
+    image: phpmyadmin:latest
+    depends_on:
+      - mysql
+    ports:
+      - '81:8080'
+      - '8143:8443'
+    environment:
+      - DATABASE_HOST=host.docker.internal
+    
+  volumes:
+    mysql:
+      driver: local

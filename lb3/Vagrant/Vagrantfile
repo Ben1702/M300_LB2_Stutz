@@ -41,8 +41,14 @@ Vagrant.configure("2") do |config|
    apt-get install -y docker-compose
    
    mkdir compose-projekt
-   mkir compose-projekt/src
-   sudo wget -P ./compose-projekt/src https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/docker-compose.yml
+   mkdir compose-projekt/docker
+   mkdir compose-projekt/docker/apache
+   mkdir compose-projekt/docker/apache/certs
+   mkdir compose-projekt/docker/mysql
+   mkdir compose-projekt/docker/mysql/data
+   mkdir compose-projekt/docker/php
+   mkdir compose-projekt/docker/www
+   sudo wget -P ./compose-projekt/docker https://raw.githubusercontent.com/Ben1702/M300_LB_Stutz/main/lb3/docker-compose.yml
   
   SHELL
   
